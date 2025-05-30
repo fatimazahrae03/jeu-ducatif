@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagramme d'intégration entre systèmes</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            width: 90%;
+            margin: 0 auto;
+        }
+        .mermaid {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .note {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="mermaid">
+            graph LR
+                subgraph WMS[Gestion d'entrepôt (WMS)]
+                    A1[Réception des marchandises]
+                    A2[Mise en stock]
+                    A3[Préparation des commandes]
+                    A4[Suivi des mouvements]
+                end
+                
+                subgraph TMS[Gestion du transport (TMS)]
+                    B1[Planification des livraisons]
+                    B2[Suivi des expéditions]
+                    B3[Gestion des transporteurs]
+                    B4[Optimisation des tournées]
+                end
+                
+                subgraph ERP[Gestion financière (ERP)]
+                    C1[Comptabilité générale]
+                    C2[Facturation]
+                    C3[Gestion des paiements]
+                    C4[Reporting financier]
+                end
+                
+                subgraph CRM[Suivi et relation client]
+                    D1[Gestion des données clients]
+                    D2[Suivi des commandes]
+                    D3[Suivi des réclamations]
+                    D4[Historique des échanges]
+                end
+                
+                WMS -.->|Pas d'intégration| TMS
+                WMS -.->|Pas d'intégration| ERP
+                WMS -.->|Pas d'intégration| CRM
+                TMS -.->|Pas d'intégration| ERP
+                TMS -.->|Pas d'intégration| CRM
+                ERP -.->|Pas d'intégration| CRM
+        </div>
+        <div class="note">
+            Diagramme montrant le manque d'intégration entre les différents systèmes de gestion
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>

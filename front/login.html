@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login Élève - Aventure Nature</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      height: 100%;
+      font-family: 'Comic Neue', cursive;
+      overflow: hidden;
+      background: linear-gradient(135deg, #87CEEB 0%, #98FB98 50%, #90EE90 100%);
+    }
+
+    /* Animated background elements */
+    .background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .cloud {
+      position: absolute;
+      background: white;
+      border-radius: 50px;
+      opacity: 0.8;
+      animation: float 20s infinite ease-in-out;
+    }
+
+    .cloud:before {
+      content: '';
+      position: absolute;
+      background: white;
+      border-radius: 50px;
+    }
+
+    .cloud1 {
+      width: 80px;
+      height: 40px;
+      top: 20%;
+      left: 10%;
+      animation-delay: 0s;
+    }
+
+    .cloud1:before {
+      width: 50px;
+      height: 50px;
+      top: -25px;
+      left: 10px;
+    }
+
+    .cloud2 {
+      width: 60px;
+      height: 30px;
+      top: 30%;
+      right: 15%;
+      animation-delay: -5s;
+    }
+
+    .cloud2:before {
+      width: 40px;
+      height: 40px;
+      top: -20px;
+      right: 10px;
+    }
+
+    .tree {
+      position: absolute;
+      bottom: 0;
+      z-index: 1;
+    }
+
+    .tree1 {
+      left: 5%;
+      width: 0;
+      height: 0;
+      border-left: 30px solid transparent;
+      border-right: 30px solid transparent;
+      border-bottom: 80px solid #228B22;
+    }
+
+    .tree1:after {
+      content: '';
+      position: absolute;
+      left: -10px;
+      bottom: -90px;
+      width: 20px;
+      height: 30px;
+      background: #8B4513;
+    }
+
+    .tree2 {
+      right: 8%;
+      width: 0;
+      height: 0;
+      border-left: 25px solid transparent;
+      border-right: 25px solid transparent;
+      border-bottom: 70px solid #32CD32;
+    }
+
+    .tree2:after {
+      content: '';
+      position: absolute;
+      left: -8px;
+      bottom: -80px;
+      width: 16px;
+      height: 25px;
+      background: #8B4513;
+    }
+
+    .flower {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: #FF69B4;
+      border-radius: 50%;
+      bottom: 10px;
+      animation: sway 3s ease-in-out infinite;
+    }
+
+    .flower1 { left: 15%; animation-delay: 0s; }
+    .flower2 { left: 25%; background: #FFD700; animation-delay: 1s; }
+    .flower3 { right: 20%; background: #FF6347; animation-delay: 2s; }
+
+    /* Blackboard style container */
+    .blackboard-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #2F4F2F;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 
+        0 0 0 10px #8B4513,
+        0 0 0 15px #A0522D,
+        0 20px 40px rgba(0,0,0,0.3);
+      z-index: 10;
+      width: 400px;
+      position: relative;
+    }
+
+    .blackboard {
+      background: #1a1a1a;
+      border: 3px solid #333;
+      border-radius: 10px;
+      padding: 30px;
+      position: relative;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    .blackboard:before {
+      content: '🎒';
+      position: absolute;
+      top: -20px;
+      left: -20px;
+      font-size: 30px;
+      background: white;
+      border-radius: 50%;
+      padding: 5px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .blackboard:after {
+      content: '📚';
+      position: absolute;
+      top: -20px;
+      right: -20px;
+      font-size: 30px;
+      background: white;
+      border-radius: 50%;
+      padding: 5px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .chalk-title {
+      color: #FFFACD;
+      font-size: 28px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 25px;
+      text-shadow: 1px 1px 2px rgba(255,255,255,0.3);
+      transform: rotate(-1deg);
+    }
+
+    .chalk-label {
+      color: #98FB98;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      margin-top: 15px;
+      transform: rotate(-0.5deg);
+    }
+
+    .chalk-input {
+      width: 100%;
+      padding: 12px 15px;
+      font-size: 16px;
+      font-family: 'Comic Neue', cursive;
+      background: #F5F5DC;
+      border: 3px solid #DEB887;
+      border-radius: 10px;
+      color: #2F4F4F;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .chalk-input:focus {
+      outline: none;
+      border-color: #FFD700;
+      box-shadow: 0 0 10px rgba(255,215,0,0.5);
+      transform: scale(1.02);
+    }
+
+    .game-button {
+      width: 100%;
+      padding: 15px;
+      font-size: 20px;
+      font-family: 'Comic Neue', cursive;
+      font-weight: 700;
+      background: linear-gradient(45deg, #32CD32, #228B22);
+      color: white;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 0 #006400, 0 8px 15px rgba(0,100,0,0.3);
+      text-transform: uppercase;
+    }
+
+    .game-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 0 #006400, 0 12px 20px rgba(0,100,0,0.4);
+    }
+
+    .game-button:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #006400, 0 4px 8px rgba(0,100,0,0.3);
+    }
+
+    .message {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 600;
+      text-align: center;
+      font-size: 16px;
+      min-height: 20px;
+    }
+
+    .success {
+      background: rgba(144, 238, 144, 0.9);
+      color: #006400;
+      border: 2px solid #32CD32;
+    }
+
+    .error {
+      background: rgba(255, 182, 193, 0.9);
+      color: #8B0000;
+      border: 2px solid #FF6B6B;
+    }
+
+    /* Animations */
+    @keyframes float {
+      0%, 100% { transform: translateX(0px) translateY(0px); }
+      33% { transform: translateX(30px) translateY(-10px); }
+      66% { transform: translateX(-20px) translateY(5px); }
+    }
+
+    @keyframes sway {
+      0%, 100% { transform: rotate(-5deg); }
+      50% { transform: rotate(5deg); }
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-10px); }
+      60% { transform: translateY(-5px); }
+    }
+
+    .bounce-animation {
+      animation: bounce 2s infinite;
+    }
+
+    /* Butterfly animation */
+    .butterfly {
+      position: absolute;
+      font-size: 25px;
+      animation: fly 15s infinite linear;
+      z-index: 5;
+    }
+
+    @keyframes fly {
+      0% { left: -50px; top: 40%; }
+      25% { left: 25%; top: 20%; }
+      50% { left: 50%; top: 60%; }
+      75% { left: 75%; top: 30%; }
+      100% { left: calc(100% + 50px); top: 50%; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background nature elements -->
+  <div class="background">
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+    <div class="tree tree1"></div>
+    <div class="tree tree2"></div>
+    <div class="flower flower1"></div>
+    <div class="flower flower2"></div>
+    <div class="flower flower3"></div>
+    <div class="butterfly">🦋</div>
+  </div>
+
+  <!-- Blackboard login container -->
+  <div class="blackboard-container">
+    <div class="blackboard">
+      <h2 class="chalk-title">🌟 Connexion Élève 🌟</h2>
+      
+      <div class="chalk-label">📝 Ton CNE :</div>
+      <input type="text" id="cne" class="chalk-input" placeholder="Écris ton CNE ici..." required />
+      
+      <div class="chalk-label">🎂 Ta date de naissance :</div>
+      <input type="date" id="dateNaissance" class="chalk-input" required />
+      
+      <button onclick="login()" class="game-button">
+        🚀 Commencer l'aventure !
+      </button>
+      
+      <div id="message" class="message"></div>
+    </div>
+  </div>
+
+  <script>
+    // Login function with game-style feedback
+    async function login() {
+      const cne = document.getElementById('cne').value.trim();
+      const dateNaissance = document.getElementById('dateNaissance').value;
+      const message = document.getElementById('message');
+      const button = document.querySelector('.game-button');
+      
+      // Add loading animation
+      button.innerHTML = '⏳ Chargement...';
+      button.disabled = true;
+      
+      try {
+        const res = await fetch('http://127.0.0.1:5000/eleve/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cne, dateNaissance }),
+        });
+
+        console.log("[DEBUG] HTTP Status:", res.status);
+        console.log("[DEBUG] Response Headers:", [...res.headers.entries()]);
+        const raw = await res.text();
+        console.log("[DEBUG] Raw Text Response:", raw);
+
+        let data;
+        try {
+          data = JSON.parse(raw);
+        } catch (err) {
+          console.error("[DEBUG] JSON parse error:", err);
+          message.className = 'message error';
+          message.textContent = '❌ Oops! Le serveur a dit quelque chose de bizarre...';
+          return;
+        }
+
+        console.log("[DEBUG] Parsed JSON:", data);
+
+        if (res.ok) {
+          message.className = 'message success bounce-animation';
+          message.textContent = '🎉 Super! Connexion réussie! Prépare-toi pour l\'aventure!';
+          
+          // Store data in memory instead of localStorage
+          window.eleveData = data.eleve;
+          
+          setTimeout(() => {
+            window.location.href = 'texte.html';
+          }, 2000);
+        } else {
+          message.className = 'message error';
+          message.textContent = '😅 ' + (data.error || 'Quelque chose s\'est mal passé... Réessaie!');
+        }
+      } catch (err) {
+        console.error("[DEBUG] FETCH ERROR:", err);
+        message.className = 'message error';
+        message.textContent = '🌐 Problème de connexion... Vérifie ta connexion internet!';
+      } finally {
+        // Reset button
+        button.innerHTML = '🚀 Commencer l\'aventure !';
+        button.disabled = false;
+      }
+    }
+
+    // Add some interactive fun
+    document.addEventListener('DOMContentLoaded', function() {
+      // Make inputs more interactive
+      const inputs = document.querySelectorAll('.chalk-input');
+      inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+          this.style.background = '#FFFACD';
+        });
+        
+        input.addEventListener('blur', function() {
+          this.style.background = '#F5F5DC';
+        });
+      });
+
+      // Add click sound effect simulation
+      const button = document.querySelector('.game-button');
+      button.addEventListener('click', function() {
+        this.style.transform = 'translateY(4px)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 150);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تعليمية - الصفحة الرئيسية</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.70.0/phaser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Amiri', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            direction: rtl;
+        }
+        
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .floating-element {
+            position: absolute;
+            pointer-events: none;
+            z-index: 10;
+            font-size: 24px;
+            opacity: 0.7;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(90deg); }
+            50% { transform: translateY(-40px) rotate(180deg); }
+            75% { transform: translateY(-20px) rotate(270deg); }
+        }
+
+        /* Styles pour la transition entre les pages */
+        .fade-out {
+            animation: fadeOut 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer"></div>
+    
+    <!-- Éléments flottants CSS -->
+    <div class="floating-element" style="top: 10%; left: 10%; animation: float 6s ease-in-out infinite;">⭐</div>
+    <div class="floating-element" style="top: 20%; right: 15%; animation: float 8s ease-in-out infinite reverse;">✨</div>
+    <div class="floating-element" style="top: 70%; left: 20%; animation: float 7s ease-in-out infinite;">🌟</div>
+    <div class="floating-element" style="top: 60%; right: 10%; animation: float 5s ease-in-out infinite reverse;">⚡</div>
+    <div class="floating-element" style="top: 40%; left: 5%; animation: float 9s ease-in-out infinite;">🎯</div>
+
+    <script>
+        // Configuration de Phaser
+        const config = {
+            type: Phaser.AUTO,
+            width: window.innerWidth,
+            height: window.innerHeight,
+            parent: 'gameContainer',
+            backgroundColor: '#1e3c72',
+            scene: {
+                preload: preload,
+                create: create,
+                update: update
+            }
+        };
+
+        let game;
+        let titleText;
+        let subtitleText;
+        let loginButton;
+        let particles = [];
+
+        function preload() {
+            // Pas besoin de précharger des textures complexes
+        }
+
+        function create() {
+            const scene = this;
+            
+            // Créer l'arrière-plan dégradé avec des rectangles colorés
+            const bg1 = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height/2, 0x667eea).setOrigin(0, 0);
+            const bg2 = this.add.rectangle(0, this.cameras.main.height/2, this.cameras.main.width, this.cameras.main.height/2, 0x764ba2).setOrigin(0, 0);
+            
+            // Créer des particules circulaires simples
+            for (let i = 0; i < 30; i++) {
+                const particle = this.add.circle(
+                    Phaser.Math.Between(0, this.cameras.main.width),
+                    Phaser.Math.Between(0, this.cameras.main.height),
+                    Phaser.Math.Between(2, 8),
+                    0xffffff,
+                    Phaser.Math.FloatBetween(0.1, 0.5)
+                );
+                
+                // Animation de flottement
+                this.tweens.add({
+                    targets: particle,
+                    y: particle.y - Phaser.Math.Between(50, 150),
+                    x: particle.x + Phaser.Math.Between(-30, 30),
+                    alpha: Phaser.Math.FloatBetween(0.1, 0.8),
+                    duration: Phaser.Math.Between(3000, 8000),
+                    yoyo: true,
+                    repeat: -1,
+                    ease: 'Sine.easeInOut'
+                });
+                
+                particles.push(particle);
+            }
+            
+            // Titre principal avec effet d'ombre
+            const titleShadow = this.add.text(this.cameras.main.centerX + 3, 153, 'مرحباً بك في اللعبة التعليمية', {
+                fontSize: '48px',
+                fontFamily: 'Arial, sans-serif',
+                fill: '#000000',
+                align: 'center',
+                alpha: 0.3
+            }).setOrigin(0.5);
+            
+            titleText = this.add.text(this.cameras.main.centerX, 150, 'مرحباً بك في اللعبة التعليمية', {
+                fontSize: '48px',
+                fontFamily: 'Arial, sans-serif',
+                fill: '#ffffff',
+                align: 'center',
+                fontWeight: 'bold'
+            }).setOrigin(0.5);
+            
+            // Sous-titre
+            subtitleText = this.add.text(this.cameras.main.centerX, 220, 'تعلم واستمتع مع أفضل الألعاب التعليمية', {
+                fontSize: '24px',
+                fontFamily: 'Arial, sans-serif',
+                fill: '#e8e8e8',
+                align: 'center'
+            }).setOrigin(0.5);
+            
+            // Description supplémentaire
+            const descriptionText = this.add.text(this.cameras.main.centerX, 280, 'اكتشف عالماً من المعرفة والمتعة\nمع تحديات تفاعلية وألعاب مسلية', {
+                fontSize: '18px',
+                fontFamily: 'Arial, sans-serif',
+                fill: '#d0d0d0',
+                align: 'center',
+                lineSpacing: 8
+            }).setOrigin(0.5);
+            
+            // Créer le bouton de connexion
+            const buttonBg = this.add.rectangle(this.cameras.main.centerX, this.cameras.main.centerY + 120, 300, 80, 0x4CAF50);
+            buttonBg.setStrokeStyle(4, 0x45A049);
+            
+            const buttonText = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY + 120, 'ابدأ اللعب', {
+                fontSize: '28px',
+                fontFamily: 'Arial, sans-serif',
+                fill: '#ffffff',
+                fontWeight: 'bold'
+            }).setOrigin(0.5);
+            
+            // Créer un conteneur pour le bouton
+            loginButton = this.add.container(this.cameras.main.centerX, this.cameras.main.centerY + 120);
+            loginButton.add([buttonBg, buttonText]);
+            
+            // Rendre le bouton interactif
+            buttonBg.setInteractive({ useHandCursor: true });
+            
+            // Animation de pulsation du bouton
+            this.tweens.add({
+                targets: loginButton,
+                scaleX: 1.05,
+                scaleY: 1.05,
+                duration: 1500,
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut'
+            });
+            
+            // Animation du titre
+            this.tweens.add({
+                targets: [titleText, titleShadow],
+                y: titleText.y - 5,
+                duration: 2000,
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut'
+            });
+            
+            // Événements du bouton
+            buttonBg.on('pointerdown', () => {
+                this.tweens.add({
+                    targets: loginButton,
+                    scaleX: 0.95,
+                    scaleY: 0.95,
+                    duration: 100,
+                    yoyo: true,
+                    onComplete: () => {
+                        navigateToLogin();
+                    }
+                });
+            });
+            
+            buttonBg.on('pointerover', () => {
+                buttonBg.setFillStyle(0x45A049);
+                this.tweens.add({
+                    targets: loginButton,
+                    scaleX: 1.1,
+                    scaleY: 1.1,
+                    duration: 200
+                });
+            });
+            
+            buttonBg.on('pointerout', () => {
+                buttonBg.setFillStyle(0x4CAF50);
+                this.tweens.add({
+                    targets: loginButton,
+                    scaleX: 1.05,
+                    scaleY: 1.05,
+                    duration: 200
+                });
+            });
+            
+            // Créer des éléments décoratifs géométriques
+            for (let i = 0; i < 8; i++) {
+                const shape = this.add.polygon(
+                    Phaser.Math.Between(50, this.cameras.main.width - 50),
+                    Phaser.Math.Between(50, this.cameras.main.height - 50),
+                    [0, -20, 20, 10, -20, 10],
+                    0xFFD700,
+                    0.4
+                );
+                
+                this.tweens.add({
+                    targets: shape,
+                    rotation: Math.PI * 2,
+                    duration: Phaser.Math.Between(4000, 8000),
+                    repeat: -1,
+                    ease: 'Linear'
+                });
+            }
+            
+            // Message d'instructions
+            const instructionText = this.add.text(this.cameras.main.centerX, this.cameras.main.height - 80, 'اضغط على الزر للبدء', {
+                fontSize: '18px',
+                fontFamily: 'Arial, sans-serif',
+                fill: 'login.html',
+                alpha: 0.8
+            }).setOrigin(0.5);
+            
+            // Animation clignotante pour les instructions
+            this.tweens.add({
+                targets: instructionText,
+                alpha: 0.3,
+                duration: 1000,
+                yoyo: true,
+                repeat: -1,
+                ease: 'Power2'
+            });
+
+            // Informations supplémentaires en bas
+            const infoText = this.add.text(this.cameras.main.centerX, this.cameras.main.height - 40, 'للتعلم الممتع والتفاعلي', {
+                fontSize: '14px',
+                fontFamily: 'Arial, sans-serif',
+                fill: '#cccccc',
+                alpha: 0.7
+            }).setOrigin(0.5);
+        }
+
+        function update() {
+            // Mise à jour continue si nécessaire
+        }
+
+        function navigateToLogin() {
+            // Ajouter effet de transition
+            document.body.classList.add('fade-out');
+            
+            // Rediriger vers la page de login après l'animation
+            setTimeout(() => {
+                // Dans un environnement réel, vous utiliseriez :
+                // window.location.href = '/login.html';
+                
+                // Pour la démonstration, nous allons simuler la navigation
+                console.log('Navigation vers la page de login...');
+                alert('Redirection vers la page de connexion...\n(Dans un environnement réel, cela naviguerait vers login.html)');
+                
+                // Retirer l'effet de transition
+                document.body.classList.remove('fade-out');
+            }, 500);
+        }
+
+        // Responsive design
+        window.addEventListener('resize', () => {
+            if (game) {
+                game.scale.resize(window.innerWidth, window.innerHeight);
+            }
+        });
+
+        // Initialiser le jeu
+        game = new Phaser.Game(config);
+    </script>
+</body>
+</html>
