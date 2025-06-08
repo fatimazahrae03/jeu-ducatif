@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_cors import CORS
 from config import Config
 from models import db
@@ -14,7 +14,7 @@ from routes.testeeleve import elevetest_bp
 from routes.recorde import recorder_bp
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:8080"])
+CORS(app, origins=["http://localhost:3000"])
 app.config.from_object(Config)
 
 # Initialiser la base de données avec l'application
@@ -50,3 +50,7 @@ def public_files(filename):
 @app.route('/texte')
 def texte_page():
     return send_from_directory('public', 'texte.html')
+
+@app.route("/login.html")
+def login():
+    return render_template("login.html")
