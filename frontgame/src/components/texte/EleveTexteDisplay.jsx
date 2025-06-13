@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useEleveTexteContext } from '../../contexts/EleveTexteContext';
 import { useEleveAuthContext } from '../../contexts/EleveAuthContext.js';
 import QCMPage from './QCMPage'; // Importez le composant QCM
+// Ajoutez l'import pour le composant Questions Ouvertes
+// import QuestionsOuvertesPage from './QuestionsOuvertesPage'; 
 
 const EleveTexteDisplay = ({ onNavigateToQCM }) => {
   const { user } = useEleveAuthContext();
@@ -13,8 +15,8 @@ const EleveTexteDisplay = ({ onNavigateToQCM }) => {
   const [uploadError, setUploadError] = useState(null);
   const [uploadSuccess, setUploadSuccess] = useState(null);
 
-  // État pour la navigation vers QCM
-  const [showQCM, setShowQCM] = useState(false);
+  // États pour la navigation entre les pages
+  const [currentPage, setCurrentPage] = useState('texte'); // 'texte', 'qcm', 'questions-ouvertes'
   const [currentIdTexte, setCurrentIdTexte] = useState(null);
 
   useEffect(() => {
@@ -29,7 +31,6 @@ const EleveTexteDisplay = ({ onNavigateToQCM }) => {
       alert('Aucun texte disponible. Impossible d\'accéder aux QCM.');
       return;
     }
-    
 
     // Vérifier que le texte contient un ID
     const textId = (typeof texte === 'object' && (texte.idTexte || texte.id)) || null;
@@ -40,7 +41,7 @@ const EleveTexteDisplay = ({ onNavigateToQCM }) => {
 
     // Naviguer vers la page QCM
     setCurrentIdTexte(textId);
-    setShowQCM(true);
+    setCurrentPage('qcm');
 
     // Si onNavigateToQCM est fourni par le parent, l'utiliser aussi
     if (onNavigateToQCM && typeof onNavigateToQCM === 'function') {
@@ -48,9 +49,24 @@ const EleveTexteDisplay = ({ onNavigateToQCM }) => {
     }
   };
 
+  // Fonction pour naviguer vers les Questions Ouvertes
+  const handleGoToQuestionsOuvertes = () => {
+    if (!currentIdTexte) {
+      // Si pas d'ID texte courant, essayer de le récupérer
+      const textId = (typeof texte === 'object' && (texte.idTexte || texte.id)) || null;
+      if (!textId) {
+        alert('ID du texte non trouvé. Impossible d\'accéder aux Questions Ouvertes.');
+        return;
+      }
+      setCurrentIdTexte(textId);
+    }
+    
+    setCurrentPage('questions-ouvertes');
+  };
+
   // Fonction pour revenir à l'affichage du texte
   const handleBackToTexte = () => {
-    setShowQCM(false);
+    setCurrentPage('texte');
     setCurrentIdTexte(null);
   };
 
@@ -122,16 +138,67 @@ const EleveTexteDisplay = ({ onNavigateToQCM }) => {
     }
   };
 
-  // Si on doit afficher la page QCM
-  if (showQCM && currentIdTexte) {
+  // Rendu conditionnel selon la page courante
+  if (currentPage === 'qcm' && currentIdTexte) {
     return (
       <QCMPage 
         idTexte={currentIdTexte} 
         onBackToTexte={handleBackToTexte}
+        onGoToQuestionsOuvertes={handleGoToQuestionsOuvertes} // ✅ Ajout de cette prop
       />
     );
   }
 
+  if (currentPage === 'questions-ouvertes' && currentIdTexte) {
+    // Composant Questions Ouvertes (à créer ou remplacer par votre composant)
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <h2>📝 Questions Ouvertes</h2>
+        <p>Page des questions ouvertes pour le texte ID: {currentIdTexte}</p>
+        
+        {/* Placeholder - remplacez par votre composant QuestionsOuvertesPage */}
+        {/* <QuestionsOuvertesPage 
+          idTexte={currentIdTexte} 
+          onBackToTexte={handleBackToTexte}
+        /> */}
+        
+        <div style={{ marginTop: '20px' }}>
+          <button
+            onClick={handleBackToTexte}
+            style={{
+              backgroundColor: '#6c757d',
+              color: 'white',
+              padding: '12px 24px',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '16px',
+              marginRight: '10px'
+            }}
+          >
+            ← Retour au texte
+          </button>
+          
+          <button
+            onClick={() => setCurrentPage('qcm')}
+            style={{
+              backgroundColor: '#007bff',
+              color: 'white',
+              padding: '12px 24px',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '16px'
+            }}
+          >
+            📝 Retour aux QCM
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Affichage du texte (page par défaut)
   if (loading) {
     return (
       <div className="texte-loading">
@@ -176,32 +243,53 @@ const EleveTexteDisplay = ({ onNavigateToQCM }) => {
         border: '1px solid #e9ecef'
       }}>
         <h4 style={{ marginBottom: '10px', color: '#495057' }}>
-          📝 Exercices QCM
+          📝 Exercices disponibles
         </h4>
         <p style={{ marginBottom: '15px', color: '#6c757d', fontSize: '14px' }}>
           Testez vos connaissances avec nos questionnaires interactifs basés sur ce texte
         </p>
         
-        {/* Affichage conditionnel du bouton selon la disponibilité du texte */}
+        {/* Affichage conditionnel des boutons selon la disponibilité du texte */}
         {texte && (typeof texte === 'object' && (texte.idTexte || texte.id)) ? (
-          <button
-            onClick={handleQCMNavigation}
-            style={{
-              backgroundColor: '#007bff',
-              color: 'white',
-              padding: '12px 24px',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontSize: '16px',
-              fontWeight: '500',
-              transition: 'background-color 0.3s ease'
-            }}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#0056b3'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#007bff'}
-          >
-            🚀 Accéder aux QCM
-          </button>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <button
+              onClick={handleQCMNavigation}
+              style={{
+                backgroundColor: '#007bff',
+                color: 'white',
+                padding: '12px 24px',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '16px',
+                fontWeight: '500',
+                transition: 'background-color 0.3s ease'
+              }}
+              onMouseOver={(e) => e.target.style.backgroundColor = '#0056b3'}
+              onMouseOut={(e) => e.target.style.backgroundColor = '#007bff'}
+            >
+              🚀 Accéder aux QCM
+            </button>
+            
+            <button
+              onClick={handleGoToQuestionsOuvertes}
+              style={{
+                backgroundColor: '#28a745',
+                color: 'white',
+                padding: '12px 24px',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '16px',
+                fontWeight: '500',
+                transition: 'background-color 0.3s ease'
+              }}
+              onMouseOver={(e) => e.target.style.backgroundColor = '#218838'}
+              onMouseOut={(e) => e.target.style.backgroundColor = '#28a745'}
+            >
+              📋 Questions Ouvertes
+            </button>
+          </div>
         ) : (
           <button
             disabled
@@ -216,14 +304,14 @@ const EleveTexteDisplay = ({ onNavigateToQCM }) => {
               fontWeight: '500'
             }}
           >
-            ❌ QCM non disponible
+            ❌ Exercices non disponibles
           </button>
         )}
         
         {/* Message d'information si le texte n'a pas d'ID valide */}
         {texte && !(typeof texte === 'object' && (texte.idTexte || texte.id)) && (
           <p style={{ marginTop: '10px', color: '#dc3545', fontSize: '12px' }}>
-            ⚠️ ID du texte manquant - Les QCM ne peuvent pas être chargés
+            ⚠️ ID du texte manquant - Les exercices ne peuvent pas être chargés
           </p>
         )}
       </div>
