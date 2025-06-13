@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useEleveAuthContext } from '../../contexts/EleveAuthContext.js';
 import { useQCM } from '../../hooks/useQCM.js'; // Importez votre hook
 
-const QCMPage = ({ idTexte, onBackToTexte }) => {
+const QCMPage = ({ idTexte, onBackToTexte, onGoToQuestionsOuvertes }) => {
   const { user } = useEleveAuthContext();
   const { questions, loading, error, fetchQCM, submitAnswer, clearError } = useQCM();
   
@@ -89,6 +89,13 @@ const QCMPage = ({ idTexte, onBackToTexte }) => {
     clearError();
   };
 
+  // Gérer la navigation vers les Questions Ouvertes
+  const handleGoToQuestionsOuvertes = () => {
+    if (onGoToQuestionsOuvertes && typeof onGoToQuestionsOuvertes === 'function') {
+      onGoToQuestionsOuvertes();
+    }
+  };
+
   // Rendu des états de chargement et d'erreur
   if (loading) {
     return (
@@ -143,20 +150,38 @@ const QCMPage = ({ idTexte, onBackToTexte }) => {
       <div className="qcm-container" style={{ padding: '20px', textAlign: 'center' }}>
         <h2>📝 Aucune question disponible</h2>
         <p>Il n'y a pas encore de questions QCM pour ce texte.</p>
-        <button
-          onClick={onBackToTexte}
-          style={{
-            backgroundColor: '#6c757d',
-            color: 'white',
-            padding: '12px 24px',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontSize: '16px'
-          }}
-        >
-          ← Retour au texte
-        </button>
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+          <button
+            onClick={onBackToTexte}
+            style={{
+              backgroundColor: '#6c757d',
+              color: 'white',
+              padding: '12px 24px',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '16px'
+            }}
+          >
+            ← Retour au texte
+          </button>
+          {onGoToQuestionsOuvertes && (
+            <button
+              onClick={handleGoToQuestionsOuvertes}
+              style={{
+                backgroundColor: '#28a745',
+                color: 'white',
+                padding: '12px 24px',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '16px'
+              }}
+            >
+              📝 Questions Ouvertes
+            </button>
+          )}
+        </div>
       </div>
     );
   }
@@ -209,20 +234,38 @@ const QCMPage = ({ idTexte, onBackToTexte }) => {
         paddingBottom: '15px'
       }}>
         <h1 style={{ margin: 0, color: '#495057' }}>📝 QCM - Questions à choix multiples</h1>
-        <button
-          onClick={onBackToTexte}
-          style={{
-            backgroundColor: '#6c757d',
-            color: 'white',
-            padding: '10px 20px',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontSize: '14px'
-          }}
-        >
-          ← Retour au texte
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          {onGoToQuestionsOuvertes && (
+            <button
+              onClick={handleGoToQuestionsOuvertes}
+              style={{
+                backgroundColor: '#28a745',
+                color: 'white',
+                padding: '10px 20px',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px'
+              }}
+            >
+              📝 Questions Ouvertes
+            </button>
+          )}
+          <button
+            onClick={onBackToTexte}
+            style={{
+              backgroundColor: '#6c757d',
+              color: 'white',
+              padding: '10px 20px',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px'
+            }}
+          >
+            ← Retour au texte
+          </button>
+        </div>
       </div>
 
       {/* Barre de progression */}
@@ -275,7 +318,7 @@ const QCMPage = ({ idTexte, onBackToTexte }) => {
             Pourcentage de réussite: {Math.round((score / questions.length) * 100)}%
           </div>
           
-          <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button
               onClick={handleRestart}
               style={{
@@ -291,10 +334,27 @@ const QCMPage = ({ idTexte, onBackToTexte }) => {
             >
               🔄 Recommencer le QCM
             </button>
+            {onGoToQuestionsOuvertes && (
+              <button
+                onClick={handleGoToQuestionsOuvertes}
+                style={{
+                  backgroundColor: '#28a745',
+                  color: 'white',
+                  padding: '15px 30px',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '16px',
+                  fontWeight: 'bold'
+                }}
+              >
+                📝 Passer aux Questions Ouvertes
+              </button>
+            )}
             <button
               onClick={onBackToTexte}
               style={{
-                backgroundColor: '#28a745',
+                backgroundColor: '#6c757d',
                 color: 'white',
                 padding: '15px 30px',
                 border: 'none',
@@ -419,21 +479,42 @@ const QCMPage = ({ idTexte, onBackToTexte }) => {
                 }
               </p>
 
-              <button
-                onClick={handleNextQuestion}
-                style={{
-                  backgroundColor: isLastQuestion ? '#28a745' : '#007bff',
-                  color: 'white',
-                  padding: '12px 25px',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '16px',
-                  fontWeight: 'bold'
-                }}
-              >
-                {isLastQuestion ? '🏁 Voir les résultats finaux' : '➡️ Question suivante'}
-              </button>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <button
+                  onClick={handleNextQuestion}
+                  style={{
+                    backgroundColor: isLastQuestion ? '#28a745' : '#007bff',
+                    color: 'white',
+                    padding: '12px 25px',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    flex: '1'
+                  }}
+                >
+                  {isLastQuestion ? '🏁 Voir les résultats finaux' : '➡️ Question suivante'}
+                </button>
+                
+                {onGoToQuestionsOuvertes && (
+                  <button
+                    onClick={handleGoToQuestionsOuvertes}
+                    style={{
+                      backgroundColor: '#28a745',
+                      color: 'white',
+                      padding: '12px 25px',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '16px',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    📝 Questions Ouvertes
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </>
