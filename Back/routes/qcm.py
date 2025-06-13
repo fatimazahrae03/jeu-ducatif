@@ -33,10 +33,14 @@ def get_qcm_by_text(idTexte):
 def enregistrer_reponse():
     try:
         data = request.json
-        print("Données reçues:", data)  # Log pour vérifier ce qui arrive
+        print("Données reçues:", data)
 
-        id_qcm = data['idQCM']
-        reponse_etudiant = data['reponseEtudiant']
+        id_qcm = data.get('idQCM')
+        id_hys = data.get('idHys')  # ✅ Récupération de l'ID historique
+        reponse_etudiant = data.get('reponseEtudiant')
+
+        if not id_qcm or not id_hys or not reponse_etudiant:
+            return jsonify({"erreur": "idQCM, idHys et reponseEtudiant sont requis"}), 400
 
         qcm = QCM.query.filter_by(idQCM=id_qcm).first()
         if not qcm:
@@ -55,7 +59,7 @@ def enregistrer_reponse():
         db.session.commit()
 
         return jsonify({
-            "message": "Réponse enregistrée",
+            "message": "Réponse enregistrée avec succès",
             "idRepence": nouvelle_repence.idRepence,
             "note": note
         }), 201
@@ -63,4 +67,4 @@ def enregistrer_reponse():
     except Exception as e:
         import traceback
         traceback.print_exc()
-        return jsonify({"erreur": str(e)}), 500
+        return jsonify({"erreur": f"Erreur interne: {str(e)}"}), 500

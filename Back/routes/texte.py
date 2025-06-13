@@ -75,3 +75,69 @@ def get_texte_by_id(idTexte):
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+# Ajoutez ces endpoints à votre fichier backend existant
+
+@texte_bp.route('/<int:idTexte>', methods=['PUT'])
+def update_texte(idTexte):
+    try:
+        data = request.get_json()
+        
+        texte = Texte.query.get(idTexte)
+        if not texte:
+            return jsonify({'error': 'Texte non trouvé'}), 404
+        
+        # Mise à jour des champs si fournis
+        if 'niveauC' in data:
+            texte.niveauC = data['niveauC']
+        
+        if 'niveauL' in data:
+            try:
+                texte.niveauL = NiveauL[data['niveauL']]
+            except KeyError:
+                return jsonify({'error': 'niveauL doit être A, B ou C'}), 400
+        
+        if 'texteContent' in data:
+            texte.texteContent = data['texteContent']
+        
+        db.session.commit()
+        
+        return jsonify({'message': 'Texte modifié avec succès'}), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+
+@texte_bp.route('/<int:idTexte>', methods=['DELETE'])
+def delete_texte(idTexte):
+    try:
+        texte = Texte.query.get(idTexte)
+        if not texte:
+            return jsonify({'error': 'Texte non trouvé'}), 404
+        
+        db.session.delete(texte)
+        db.session.commit()
+        
+        return jsonify({'message': 'Texte supprimé avec succès'}), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@texte_bp.route('/all', methods=['GET'])
+def get_all_textes():
+    try:
+        textes = Texte.query.all()
+        
+        result = []
+        for texte in textes:
+            result.append({
+                'idTexte': texte.idTexte,
+                'niveauC': texte.niveauC,
+                'niveauL': texte.niveauL.name,
+                'texteContent': texte.texteContent
+            })
+        
+        return jsonify(result), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
