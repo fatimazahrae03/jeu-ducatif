@@ -1,6 +1,7 @@
 import React from 'react';
 import { useEleveAuthContext } from '../../contexts/EleveAuthContext.js';
 import EleveTexteDisplay from '../texte/EleveTexteDisplay';
+import EleveQCMDisplay from '../texte/QCMPage.jsx';
 
 const EleveDashboard = () => {
   const { user, logout } = useEleveAuthContext();

@@ -17,7 +17,28 @@ export const useEleveTexte = () => {
 
     try {
       const response = await eleveApi.getTexteForEleve(idEleve);
-      setTexte(response.texte || response);
+      
+      // Restructurer les données selon le format de votre API
+      let normalizedTexte;
+      
+      if (response.idTexte && response.texte) {
+        // Format de votre API: { idTexte: 8, texte: "contenu..." }
+        normalizedTexte = {
+          idTexte: response.idTexte,
+          id: response.idTexte, // Ajouter id pour compatibilité
+          contenu: response.texte, // Le contenu du texte
+          titre: response.titre || null, // Si il y a un titre
+          dateCreation: response.dateCreation || null
+        };
+      } else if (response.texte) {
+        // Ancienne logique de fallback
+        normalizedTexte = response.texte;
+      } else {
+        normalizedTexte = response;
+      }
+
+      console.log('Texte normalisé:', normalizedTexte); // Pour debug
+      setTexte(normalizedTexte);
       return response;
     } catch (err) {
       setError(err.message);
